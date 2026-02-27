@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Télétravail ou Sur Site ?</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teletravail: #0d9488;
+    --onsite: #7c3aed;
+    --bg: #0f0f13;
+    --surface: #1a1a24;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --muted: #6b6b88;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(13,148,136,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%;
+    right: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(124,58,237,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 560px;
+    position: relative;
+    z-index: 1;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-title {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+  }
+
+  .reference-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    font-weight: 400;
+  }
+
+  input[type="date"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    padding: 0.7rem 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+
+  input[type="date"]:focus {
+    border-color: var(--teletravail);
+  }
+
+  .mode-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+
+  .mode-btn {
+    padding: 0.7rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 400;
+  }
+
+  .mode-btn:hover {
+    border-color: var(--muted);
+    color: var(--text);
+  }
+
+  .mode-btn.active-teletravail {
+    border-color: var(--teletravail);
+    background: rgba(13,148,136,0.12);
+    color: #5eead4;
+  }
+
+  .mode-btn.active-onsite {
+    border-color: var(--onsite);
+    background: rgba(124,58,237,0.12);
+    color: #c4b5fd;
+  }
+
+  .check-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .check-row > div:first-child {
+    flex: 1;
+  }
+
+  .btn-check {
+    padding: 0.7rem 1.4rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--teletravail);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .btn-check:hover { opacity: 0.85; }
+  .btn-check:active { transform: scale(0.97); }
+
+  .result {
+    display: none;
+    padding: 1.6rem;
+    border-radius: 16px;
+    border: 1.5px solid;
+    animation: fadeUp 0.35s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result.teletravail {
+    background: rgba(13,148,136,0.08);
+    border-color: rgba(13,148,136,0.4);
+  }
+
+  .result.onsite {
+    background: rgba(124,58,237,0.08);
+    border-color: rgba(124,58,237,0.4);
+  }
+
+  .result-icon {
+    font-size: 2.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-day {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .result-mode {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .result.teletravail .result-mode { color: #5eead4; }
+  .result.onsite .result-mode { color: #c4b5fd; }
+
+  .result-note {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+  }
+
+  .error {
+    color: #f87171;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  .week-preview {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+
+  .week-day {
+    border-radius: 8px;
+    padding: 0.4rem 0.2rem;
+    text-align: center;
+    font-size: 0.7rem;
+    border: 1px solid var(--border);
+  }
+
+  .week-day .wd-name {
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+    color: var(--muted);
+  }
+
+  .week-day .wd-status {
+    font-size: 0.65rem;
+  }
+
+  .week-day.tt {
+    background: rgba(13,148,136,0.1);
+    border-color: rgba(13,148,136,0.3);
+  }
+
+  .week-day.os {
+    background: rgba(124,58,237,0.1);
+    border-color: rgba(124,58,237,0.3);
+  }
+
+  .week-day.tt .wd-status { color: #5eead4; }
+  .week-day.os .wd-status { color: #c4b5fd; }
+
+  .week-day.highlighted {
+    outline: 2px solid white;
+    outline-offset: 1px;
+  }
+
+  .preview-title {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Télétravail<br><em>ou Sur Site ?</em></h1>
+  <p class="subtitle">Indiquez un jour de référence et consultez n'importe quel jour.</p>
+
+  <div class="card">
+    <div class="card-title">📍 Jour de référence</div>
+    <div class="reference-row">
+      <div>
+        <label>Date connue</label>
+        <input type="date" id="refDate">
+      </div>
+      <div>
+        <label>Mode ce jour-là</label>
+        <div class="mode-selector">
+          <button class="mode-btn active-teletravail" id="btnTT" onclick="setMode('teletravail')">🏠 Télétravail</button>
+          <button class="mode-btn" id="btnOS" onclick="setMode('onsite')">🏢 Sur site</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 Jour à vérifier</div>
+    <div class="check-row">
+      <div>
+        <label>Date à consulter</label>
+        <input type="date" id="checkDate">
+      </div>
+      <button class="btn-check" onclick="checkDay()">Vérifier →</button>
+    </div>
+    <div class="error" id="error">Veuillez remplir tous les champs et choisir un jour ouvré (lun-ven).</div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-icon" id="resultIcon"></div>
+    <div class="result-day" id="resultDay"></div>
+    <div class="result-mode" id="resultMode"></div>
+    <div class="result-note" id="resultNote"></div>
+    <div class="preview-title">Semaine complète</div>
+    <div class="week-preview" id="weekPreview"></div>
+  </div>
+</div>
+
+<script>
+  let selectedMode = 'teletravail';
+  const DAYS_FR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const SHORT_FR = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+
+  // Pré-remplir avec aujourd'hui
+  const today = new Date();
+  const fmt = d => d.toISOString().split('T')[0];
+  document.getElementById('refDate').value = fmt(today);
+  document.getElementById('checkDate').value = fmt(today);
+
+  function setMode(mode) {
+    selectedMode = mode;
+    document.getElementById('btnTT').className = 'mode-btn' + (mode === 'teletravail' ? ' active-teletravail' : '');
+    document.getElementById('btnOS').className = 'mode-btn' + (mode === 'onsite' ? ' active-onsite' : '');
+  }
+
+  // Calcule le mode d'un jour donné (date) en fonction d'une référence
+  function getMode(targetDate, refDate, refMode) {
+    // Numéro de semaine ISO depuis epoch pour déterminer parité
+    const msPerDay = 86400000;
+    const refDay = refDate.getDay(); // 0=dim, 1=lun...
+    const targetDay = targetDate.getDay();
+
+    // Semaine contenant refDate
+    const refMonday = new Date(refDate);
+    refMonday.setDate(refDate.getDate() - ((refDay + 6) % 7));
+
+    // Semaine contenant targetDate
+    const targetMonday = new Date(targetDate);
+    targetMonday.setDate(targetDate.getDate() - ((targetDay + 6) % 7));
+
+    // Nombre de semaines entre les deux lundis
+    const weeksDiff = Math.round((targetMonday - refMonday) / (7 * msPerDay));
+
+    // Parité : même parité = même pattern, parité diff = pattern inversé
+    const sameWeekParity = (weeksDiff % 2 === 0);
+
+    // Déterminer le pattern de la semaine de référence
+    // Pattern A: lun/mar/mer = onsite, jeu/ven = teletravail
+    // Pattern B: lun/mar/mer = teletravail, jeu/ven = onsite
+    // On déduit le pattern de la semaine de référence depuis refMode et refDay
+    function modeForDayInPattern(dayOfWeek, patternA) {
+      // dayOfWeek: 1=lun, 2=mar, 3=mer, 4=jeu, 5=ven
+      const isFirstHalf = dayOfWeek <= 3; // lun/mar/mer
+      if (patternA) {
+        return isFirstHalf ? 'onsite' : 'teletravail';
+      } else {
+        return isFirstHalf ? 'teletravail' : 'onsite';
+      }
+    }
+
+    // Trouver si la semaine de référence est pattern A ou B
+    const refDayWeek = ((refDay + 6) % 7) + 1; // 1=lun ... 7=dim
+    // On teste les deux patterns
+    let refIsPatternA;
+    if (refDayWeek >= 1 && refDayWeek <= 5) {
+      const modeIfA = modeForDayInPattern(refDayWeek, true);
+      refIsPatternA = (modeIfA === refMode);
+    } else {
+      // Weekend, on ne peut pas déduire directement, on suppose A
+      refIsPatternA = true;
+    }
+
+    // Pattern de la semaine cible
+    const targetIsPatternA = sameWeekParity ? refIsPatternA : !refIsPatternA;
+    const targetDayWeek = ((targetDay + 6) % 7) + 1;
+
+    return modeForDayInPattern(targetDayWeek, targetIsPatternA);
+  }
+
+  function checkDay() {
+    const err = document.getElementById('error');
+    err.style.display = 'none';
+
+    const refVal = document.getElementById('refDate').value;
+    const checkVal = document.getElementById('checkDate').value;
+
+    if (!refVal || !checkVal) {
+      err.style.display = 'block';
+      return;
+    }
+
+    const refDate = new Date(refVal + 'T12:00:00');
+    const checkDate = new Date(checkVal + 'T12:00:00');
+    const refDay = refDate.getDay();
+    const checkDay = checkDate.getDay();
+
+    // Vérifier jours ouvrés
+    if (refDay === 0 || refDay === 6 || checkDay === 0 || checkDay === 6) {
+      err.textContent = 'Veuillez choisir des jours ouvrés (lundi à vendredi).';
+      err.style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+      return;
+    }
+
+    const mode = getMode(checkDate, refDate, selectedMode);
+    showResult(checkDate, mode);
+  }
+
+  function showResult(date, mode) {
+    const isTT = mode === 'teletravail';
+    const dayName = DAYS_FR[date.getDay()];
+    const dateStr = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    const result = document.getElementById('result');
+    result.className = 'result ' + mode;
+    result.style.display = 'block';
+
+    document.getElementById('resultIcon').textContent = isTT ? '🏠' : '🏢';
+    document.getElementById('resultDay').textContent = dayName + ' ' + dateStr;
+    document.getElementById('resultMode').textContent = isTT ? 'Télétravail' : 'Sur site';
+    document.getElementById('resultNote').textContent = isTT
+      ? 'Tu travailles depuis chez toi ce jour.'
+      : 'Tu es au bureau ce jour.';
+
+    // Semaine complète
+    const day = date.getDay();
+    const monday = new Date(date);
+    monday.setDate(date.getDate() - ((day + 6) % 7));
+
+    const refDate = new Date(document.getElementById('refDate').value + 'T12:00:00');
+    const preview = document.getElementById('weekPreview');
+    preview.innerHTML = '';
+
+    const weekDays = ['Lun','Mar','Mer','Jeu','Ven'];
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const m = getMode(d, refDate, selectedMode);
+      const isTarget = d.toDateString() === date.toDateString();
+      const div = document.createElement('div');
+      div.className = 'week-day ' + (m === 'teletravail' ? 'tt' : 'os') + (isTarget ? ' highlighted' : '');
+      div.innerHTML = `<div class="wd-name">${weekDays[i]}</div><div class="wd-status">${m === 'teletravail' ? '🏠' : '🏢'}</div>`;
+      preview.appendChild(div);
+    }
+
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>
